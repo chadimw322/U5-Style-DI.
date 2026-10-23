@@ -1,0 +1,30 @@
+
+name: Build U5 Style DI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install JUCE
+        run: git clone --depth 1 --branch 8.0.6 https://github.com/juce-framework/JUCE.git JUCE
+
+      - name: Configure project
+        run: cmake -S . -B build "-DJUCE_DIR=${{ github.workspace }}/JUCE" -A x64
+
+      - name: Compile VST3
+        run: cmake --build build --config Release
+
+      - name: Upload plugin
+        uses: actions/upload-artifact@v4
+        with:
+          name: U5-Style-DI-Windows-VST3
+          path: build/U5StyleDI_artefacts/Release/VST3/
